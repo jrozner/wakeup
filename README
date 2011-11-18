@@ -1,0 +1,4 @@
+Wake on Lan Packet Generator
+
+$ make
+./wakeup <host> <mac>
