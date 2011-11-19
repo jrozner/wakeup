@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <inttypes.h>
 #include "wakeup.h"
 
 int main(int argc, char *argv[])
@@ -14,13 +15,13 @@ int main(int argc, char *argv[])
   int sockfd;
   struct sockaddr_in theiraddr;
   struct hostent *he;
-  uint8_t mac[6];
-  uint8_t packet[102] = {'\xFF', '\xFF', '\xFF', '\xFF', '\xFF', '\xFF'};
+  uint8_t mac[6] = {0, 0, 0, 0, 0, 0};
+  uint8_t packet[102] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
   int broadcast = 1;
 
   if (argc != 3)
   {
-    fprintf(stderr, "Invalid Arguments\nUseage: wakeup <host> <mac>\n");
+    fprintf(stderr, "Usage: %s <host> <mac>\n", argv[0]);
     exit(1);
   }
   
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
   theiraddr.sin_port = htons(PORT);
   theiraddr.sin_addr = *((struct in_addr *) he->h_addr);
 
-  sscanf(argv[2], "%2x:%2x:%2x:%2x:%2x:%2x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
+  sscanf(argv[2], "%02"SCNx8":%02"SCNx8":%02"SCNx8":%02"SCNx8":%02"SCNx8":%02"SCNx8, &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
 
   generatePacket(mac, packet);
 
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-    printf("Sent a wakeup call to %s.\n", inet_ntoa(theiraddr.sin_addr));
+  printf("Sent a wakeup call to %s.\n", inet_ntoa(theiraddr.sin_addr));
 
   close(sockfd);
   return 0;
